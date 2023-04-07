@@ -16,3 +16,4 @@ else
   echo "取消修改"
 fi
 docker-compose up -d
+echo "启动完成,停止命令 docker-compose down , 启动命令 docker-compose up -d 感谢您的分享~"
