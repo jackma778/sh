@@ -15,4 +15,4 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
 else
   echo "取消修改"
 fi
-docker-compose up
+docker-compose up -d
