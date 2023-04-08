@@ -20,4 +20,4 @@ services:
     environment:
       V2SCAR_SYNC_TIME: 60
       V2SCAR_API_ENDPOINT: "http://${api}/api/user_vmess_config/${nodeId}/?token=${token}"
-      V2SCAR_GRPC_ENDPOINT: "v2ray:8080"
+      V2SCAR_GRPC_ENDPOINT: "v2ray:8079"
