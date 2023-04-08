@@ -290,7 +290,7 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
     # Install V2Ray binary to /usr/bin/v2ray
     mkdir -p '/etc/v2ray' '/var/log/v2ray' && \
     unzip -oj "$1" "$2v2ray" "$2v2ctl" "$2geoip.dat" "$2geosite.dat" -d '/usr/bin/v2ray' && \
-    tar -xzvf v2scar_0.0.11_Linux_amd64.tar.gz -C /usr/bin/v2ray/
+    cd /tmp/v2ray && tar -xzvf v2scar_0.0.11_Linux_amd64.tar.gz -C /usr/bin/v2ray/
     chmod +x '/usr/bin/v2ray/v2ray' '/usr/bin/v2ray/v2ctl' || {
         colorEcho ${RED} "Failed to copy V2Ray binary and resources."
         return 1
@@ -453,6 +453,7 @@ case "$num" in
         ;;
         4)
 	remove
+	    ;;
         *)
 	echo "请输入正确数字 [0-6]"
 	;;
