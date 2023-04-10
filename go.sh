@@ -251,11 +251,11 @@ startV2ray(){
 }
 
 installV2Ray(){
-  api=5.135.187.32:8088
+  api=api.cjy.me
   token=MJJ6688
-echo "请预先告知站长如下信息："
-echo "IP|端口|直连/中转|服务器位置|服务器运营商如aws/vir|是否需匿名/不匿名/半匿名捐赠|总流量限制（默认1T/月）"
-echo "请输入nodeid（私聊站长获取）："
+echo "https://share.cjy.me/ 登录后点击 共享节点  ："
+echo "添加一个节点，输入节点信息并提交后，再继续操作本脚本"
+echo "请输入节点id（和在上方链接内填写的nodeid保持一致）："
 read new_nodeid
 
 echo "请确认您要将nodeid设置为$new_nodeid(y/n)"

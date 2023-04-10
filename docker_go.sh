@@ -1,10 +1,10 @@
 #!/bin/bash
-echo "请预先告知站长如下信息："
-echo "IP|端口（和后面脚本要求输入的保持一致）|直连/中转|服务器位置|服务器运营商如aws/vir|是否需匿名/不匿名/半匿名捐赠|总流量限制（默认1T/月）"
-echo "请输入nodeid（私聊站长获取）："
+echo "https://share.cjy.me/ 登录后点击 共享节点  ："
+echo "添加一个节点，输入节点信息并提交后，再继续操作本脚本"
+echo "请输入节点id（和您刚刚在网页填写的节点id保持一致）："
 read new_nodeid
 
-echo "请输入运行端口（刚刚告知站长的端口）："
+echo "请输入服务端端口（和您刚刚在网页填写的服务端端口保持一致）："
 read new_port
 
 echo "请确认您要将nodeid设置为$new_nodeid ,端口设置为$new_port (y/n)"
