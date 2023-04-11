@@ -251,7 +251,7 @@ startV2ray(){
 }
 
 installV2Ray(){
-  api=api.cjy.me
+  api=https://api.cjy.me
   token=MJJ6688
 echo "https://share.cjy.me/ 登录后点击 共享节点  ："
 echo "添加一个节点，输入节点信息并提交后，再继续操作本脚本"
@@ -312,12 +312,12 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
         colorEcho ${BLUE} "UUID:${UUID}"
     fi
     if [[ -n "${SYSTEMCTL_CMD}" ]]; then
-	unzip -oj "$1" "$2systemd/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config http://$api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
+	unzip -oj "$1" "$2systemd/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
 cat <<EOF > /etc/systemd/system/v2scar.service
 [Unit]
 Description=v2scar
 [Service]
-ExecStart=/usr/bin/v2ray/v2scar --api-endpoint="http://$api/api/user_vmess_config/$nodeId/?token=$token"  --grpc-endpoint="127.0.0.1:8079" --sync-time=60
+ExecStart=/usr/bin/v2ray/v2scar --api-endpoint="$api/api/user_vmess_config/$nodeId/?token=$token"  --grpc-endpoint="127.0.0.1:8079" --sync-time=60
 Restart=always
 User=root
 [Install]

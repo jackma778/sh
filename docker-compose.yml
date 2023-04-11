@@ -7,7 +7,7 @@ services:
     restart: always
     ports:
       - "${runPort}:${runPort}"
-    command: "v2ray -config=http://${api}/api/vmess_server_config/${nodeId}/?token=${token}"
+    command: "v2ray -config=${api}/api/vmess_server_config/${nodeId}/?token=${token}"
 
   v2scar:
     container_name: v2scar
@@ -19,5 +19,5 @@ services:
       - v2ray
     environment:
       V2SCAR_SYNC_TIME: 60
-      V2SCAR_API_ENDPOINT: "http://${api}/api/user_vmess_config/${nodeId}/?token=${token}"
+      V2SCAR_API_ENDPOINT: "${api}/api/user_vmess_config/${nodeId}/?token=${token}"
       V2SCAR_GRPC_ENDPOINT: "v2ray:8079"
