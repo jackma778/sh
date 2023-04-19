@@ -213,7 +213,7 @@ installSoftware(){
 getPMT(){
     if [[ -n `command -v apt-get` ]];then
         CMD_INSTALL="apt-get -y -qq install"
-        CMD_UPDATE="apt-get -qq update"
+        CMD_UPDATE="apt update -y"
     elif [[ -n `command -v yum` ]]; then
         CMD_INSTALL="yum -y -q install"
         CMD_UPDATE="yum -q makecache"
@@ -228,11 +228,7 @@ getPMT(){
 
 stopV2ray(){
     colorEcho ${BLUE} "Shutting down V2Ray service."
-    if [[ -n "${SYSTEMCTL_CMD}" ]] || [[ -f "/lib/systemd/system/v2ray.service" ]] || [[ -f "/etc/systemd/system/v2ray.service" ]]; then
-        ${SYSTEMCTL_CMD} stop v2ray && ${SYSTEMCTL_CMD} stop v2scar
-    elif [[ -n "${SERVICE_CMD}" ]] || [[ -f "/etc/init.d/v2ray" ]]; then
-        ${SERVICE_CMD} v2ray stop && ${SERVICE_CMD} v2scar stop
-    fi
+    ${SYSTEMCTL_CMD} stop v2ray && ${SYSTEMCTL_CMD} stop v2scar
     if [[ $? -ne 0 ]]; then
         colorEcho ${YELLOW} "Failed to shutdown V2Ray service."
         return 2
@@ -240,9 +236,9 @@ stopV2ray(){
     return 0
 }
 
-startV2ray(){
+restartV2ray(){
     colorEcho ${BLUE} "Starting up V2Ray service."
-    ${SYSTEMCTL_CMD} start v2ray && ${SYSTEMCTL_CMD} start v2scar
+	${SYSTEMCTL_CMD} restart v2ray && ${SYSTEMCTL_CMD} restart v2scar
     if [[ $? -ne 0 ]]; then
         colorEcho ${YELLOW} "Failed to start V2Ray service."
         return 2
@@ -296,39 +292,25 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
         return 1
     }
 
-    # Install V2Ray server config to /etc/v2ray
-    if [ ! -f '/etc/v2ray/config.json' ]; then
-        local PORT="$(($RANDOM + 10000))"
-        local UUID="$(cat '/proc/sys/kernel/random/uuid')"
-
-        unzip -pq "$1" "$2vpoint_vmess_freedom.json" | \
-        sed -e "s/10086/${PORT}/g; s/23ad6b10-8d1a-40f7-8ad0-e3e35cd38297/${UUID}/g;" - > \
-        '/etc/v2ray/config.json' || {
-            colorEcho ${YELLOW} "Failed to create V2Ray configuration file. Please create it manually."
-            return 1
-        }
-
-        colorEcho ${BLUE} "PORT:${PORT}"
-        colorEcho ${BLUE} "UUID:${UUID}"
-    fi
+    # Install V2Ray.service and v2scar.service
     if [[ -n "${SYSTEMCTL_CMD}" ]]; then
-	unzip -oj "$1" "$2systemd/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
-cat <<EOF > /etc/systemd/system/v2scar.service
+		unzip -oj "$1" "$2systemd/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
+		cat <<EOF > /etc/systemd/system/v2scar.service
 [Unit]
 Description=v2scar
 [Service]
-ExecStart=/usr/bin/v2ray/v2scar --api-endpoint="$api/api/user_vmess_config/$nodeId/?token=$token"  --grpc-endpoint="127.0.0.1:8079" --sync-time=60
+ExecStart=/usr/bin/v2ray/v2scar --api-endpoint="$api/api/user_vmess_config/$nodeId/?token=$token"  --grpc-endpoint="127.0.0.1:8079" --sync-time=120
 Restart=always
 User=root
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daemon-reload && systemctl enable v2ray.service && systemctl enable v2scar.service && systemctl start v2ray.service && systemctl start v2scar.service
-    else
-	echo "没有找到systemctl命令 无法配置启动脚本 请检查您的系统版本是否过老"
+		systemctl daemon-reload && systemctl enable v2ray.service && systemctl enable v2scar.service && systemctl start v2ray.service && systemctl start v2scar.service
+	else
+		echo "没有找到systemctl命令 无法配置启动脚本 请检查您的系统版本是否过老 建议使用debian10 64位"
     fi
 else
-  echo "取消"
+  echo "取消安装"
 fi
 }
 
@@ -339,7 +321,7 @@ remove(){
         systemctl stop v2scar.service
         systemctl disable v2ray.service
         systemctl disable v2scar.service
-        rm -rf "/usr/bin/v2ray" "/etc/systemd/system/v2ray.service" "/etc/systemd/system/v2scar.service"
+        rm -rf "/etc/systemd/system/v2ray.service" "/etc/systemd/system/v2scar.service"
         if [[ $? -ne 0 ]]; then
             colorEcho ${RED} "Failed to remove V2Ray."
             return 0
@@ -350,79 +332,6 @@ remove(){
 	fi
 }
 
-
-main(){
-    [[ "$REMOVE" == "1" ]] && remove && return
-
-    local ARCH=$(uname -m)
-    VDIS="$(archAffix)"
-
-    # extract local file
-    if [[ $LOCAL_INSTALL -eq 1 ]]; then
-        colorEcho ${YELLOW} "Installing V2Ray via local file. Please make sure the file is a valid V2Ray package, as we are not able to determine that."
-        NEW_VER=local
-        rm -rf /tmp/v2ray
-        ZIPFILE="$LOCAL"
-        #FILEVDIS=`ls /tmp/v2ray |grep v2ray-v |cut -d "-" -f4`
-        #SYSTEM=`ls /tmp/v2ray |grep v2ray-v |cut -d "-" -f3`
-        #if [[ ${SYSTEM} != "linux" ]]; then
-        #    colorEcho ${RED} "The local V2Ray can not be installed in linux."
-        #    return 1
-        #elif [[ ${FILEVDIS} != ${VDIS} ]]; then
-        #    colorEcho ${RED} "The local V2Ray can not be installed in ${ARCH} system."
-        #    return 1
-        #else
-        #    NEW_VER=`ls /tmp/v2ray |grep v2ray-v |cut -d "-" -f2`
-        #fi
-    else
-        # download via network and extract
-        installSoftware "curl" || return $?
-        getVersion
-        RETVAL="$?"
-        if [[ $RETVAL == 0 ]] && [[ "$FORCE" != "1" ]]; then
-            colorEcho ${BLUE} "installed OK."
-            if [ -n "${ERROR_IF_UPTODATE}" ]; then
-              return 10
-            fi
-            return
-        elif [[ $RETVAL == 3 ]]; then
-            return 3
-        else
-            colorEcho ${BLUE} "Installing V2Ray ${NEW_VER} on ${ARCH}"
-            downloadV2Ray || return $?
-        fi
-    fi
-
-    local ZIPROOT="$(zipRoot "${ZIPFILE}")"
-    installSoftware unzip || return $?
-
-    if [ -n "${EXTRACT_ONLY}" ]; then
-        colorEcho ${BLUE} "Extracting V2Ray package to ${VSRC_ROOT}."
-
-        if unzip -o "${ZIPFILE}" -d ${VSRC_ROOT}; then
-            colorEcho ${GREEN} "V2Ray extracted to ${VSRC_ROOT%/}${ZIPROOT:+/${ZIPROOT%/}}, and exiting..."
-            return 0
-        else
-            colorEcho ${RED} "Failed to extract V2Ray."
-            return 2
-        fi
-    fi
-
-    if pgrep "v2ray" > /dev/null ; then
-        V2RAY_RUNNING=1
-        stopV2ray
-    fi
-    installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
-    installInitScript "${ZIPFILE}" "${ZIPROOT}" || return $?
-    if [[ ${V2RAY_RUNNING} -eq 1 ]];then
-        colorEcho ${BLUE} "Restarting V2Ray service."
-        startV2ray
-    fi
-    colorEcho ${GREEN} "V2Ray ${NEW_VER} is installed."
-    rm -rf /tmp/v2ray
-    return 0
-}
-
 echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- v0.1 2023.4.8 -- 
   
@@ -430,7 +339,7 @@ echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Fo
 ————————————
  ${Green_font_prefix}0.${Font_color_suffix} 安装&对接
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 启动
+ ${Green_font_prefix}1.${Font_color_suffix} 启动/重启
  ${Green_font_prefix}2.${Font_color_suffix} 停止
 ————————————
  ${Green_font_prefix}4.${Font_color_suffix} 卸载
@@ -446,7 +355,7 @@ case "$num" in
 	installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
         ;;
         1)
-	startV2ray
+	restartV2ray
         ;;
         2)
 	stopV2ray
