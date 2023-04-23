@@ -174,7 +174,7 @@ downloadV2Ray(){
     mkdir -p /tmp/v2ray
     DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/v4.26.0/v2ray-linux-64.zip"
     colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
-    wget -P /tmp/v2ray "https://github.com/Ehco1996/v2scar/releases/download/v0.0.11/v2scar_0.0.11_Linux_amd64.tar.gz"
+    wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
     curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK} 
     if [ $? != 0 ];then
         colorEcho ${RED} "Failed to download! Please check your network or try again."
@@ -286,8 +286,8 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
     # Install V2Ray binary to /usr/bin/v2ray
     mkdir -p '/etc/v2ray' '/var/log/v2ray' && \
     unzip -oj "$1" "$2v2ray" "$2v2ctl" "$2geoip.dat" "$2geosite.dat" -d '/usr/bin/v2ray' && \
-    cd /tmp/v2ray && tar -xzvf v2scar_0.0.11_Linux_amd64.tar.gz -C /usr/bin/v2ray/
-    chmod +x '/usr/bin/v2ray/v2ray' '/usr/bin/v2ray/v2ctl' || {
+    mv /tmp/v2ray/v2scar /usr/bin/v2ray/ 
+    chmod +x '/usr/bin/v2ray/v2scar' '/usr/bin/v2ray/v2ray' '/usr/bin/v2ray/v2ctl' || {
         colorEcho ${RED} "Failed to copy V2Ray binary and resources."
         return 1
     }
@@ -299,7 +299,7 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
 [Unit]
 Description=v2scar
 [Service]
-ExecStart=/usr/bin/v2ray/v2scar --api-endpoint="$api/api/user_vmess_config/$nodeId/?token=$token"  --grpc-endpoint="127.0.0.1:8079" --sync-time=120
+ExecStart=/usr/bin/v2ray/v2scar --nodeid=$nodeId
 Restart=always
 User=root
 [Install]
