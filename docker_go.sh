@@ -39,14 +39,12 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
   sed -i "s/runPort=.*/runPort=$new_port/g" .env
   echo "正在启动"
   docker-compose up -d
-  docker images
   docker ps -a
-  docker logs v2ray
-  echo "服务已启动完成 可尝试连接 如无法使用请将脚本执行期间的日志截图 感谢您的分享~"
-  echo "停止命令 cd /root/sh $$ docker-compose down"
-  echo "启动命令 cd /root/sh $$ docker-compose up -d"
+  echo "服务已启动完成 可尝试连接节点 在线状态需要3分钟左右更新 如无法使用请将脚本执行期间的日志截图 感谢您的分享~"
+  echo "停止命令 cd /root/sh && docker-compose stop"
+  echo "启动命令 cd /root/sh && docker-compose up -d"
   echo "启动状态下重启或改动了防火墙配置后需执行 systemctl restart docker"
-  echo "卸载命令 cd /root/sh $$ docker-compose rm -s"
+  echo "卸载命令 cd /root/sh && docker-compose down"
 else
   echo "取消"
 fi
