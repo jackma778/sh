@@ -305,7 +305,8 @@ User=root
 [Install]
 WantedBy=multi-user.target
 EOF
-		systemctl daemon-reload && systemctl enable v2ray.service && systemctl enable v2scar.service && systemctl start v2ray.service && systemctl start v2scar.service
+		systemctl daemon-reload && systemctl enable v2ray.service && systemctl enable v2scar.service && systemctl start v2ray.service && systemctl start v2scar.service && echo "启动完成，可以尝试更新订阅，您自己的的节点默认置顶显示,如果可以使用，网页上的节点状态将在3-5分钟更新，请耐心等待" &&   echo "服务已启动完成 可尝试连接节点 在线状态需要3分钟左右更新 如无法使用请将脚本执行期间的日志截图 感谢您的分享~"
+
 	else
 		echo "没有找到systemctl命令 无法配置启动脚本 请检查您的系统版本是否过老 建议使用debian10 64位"
     fi
