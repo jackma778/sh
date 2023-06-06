@@ -23,7 +23,7 @@ DIST_SRC='github'
 ERROR_IF_UPTODATE=''
 
 CUR_VER=""
-NEW_VER="v4.26.0"
+NEW_VER="v4.45.2"
 VDIS=''
 ZIPFILE="/tmp/v2ray/v2ray.zip"
 V2RAY_RUNNING=0
@@ -172,7 +172,7 @@ zipRoot() {
 downloadV2Ray(){
     rm -rf /tmp/v2ray
     mkdir -p /tmp/v2ray
-    DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/v4.26.0/v2ray-linux-64.zip"
+    DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-64.zip"
     colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
     wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
     curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK} 
@@ -294,7 +294,7 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
 
     # Install V2Ray.service and v2scar.service
     if [[ -n "${SYSTEMCTL_CMD}" ]]; then
-		unzip -oj "$1" "$2systemd/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
+		unzip -oj "$1" "$2systemd/system/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
 		cat <<EOF > /etc/systemd/system/v2scar.service
 [Unit]
 Description=v2scar
