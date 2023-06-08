@@ -351,6 +351,7 @@ case "$num" in
 	installSoftware curl
 	installSoftware wget
 	installSoftware unzip
+	installSoftware ca-certificates
 	downloadV2Ray
 	installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
         ;;
