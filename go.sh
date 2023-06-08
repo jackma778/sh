@@ -249,9 +249,8 @@ restartV2ray(){
 installV2Ray(){
   api=https://api.cjy.me
   token=MJJ6688
-echo "https://share.cjy.me/ 登录后点击 共享节点  ："
-echo "添加一个节点，输入节点信息并提交后，再继续操作本脚本"
-echo "请输入节点id（和在上方链接内填写的nodeid保持一致）："
+echo "https://share.cjy.me 添加主机信息后，再继续操作本脚本" 
+echo "请输入节点id（和您刚刚在网页填写的节点id保持一致）："
 read new_nodeid
 
 echo "请确认您要将nodeid设置为$new_nodeid(y/n)"
@@ -333,7 +332,9 @@ remove(){
 }
 
 echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- v0.1 2023.4.8 -- 
+  -- v0.2 2023.6.6 -- 
+v0.2脚本适用于2023.6.6日之后添加于平台的主机对接。
+如果您的主机在2023.6.6日之前已经分享于MCP，请使用v0.1版本脚本或在分享页删除主机后重新添加一次。
   
   
 ————————————
