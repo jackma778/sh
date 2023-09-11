@@ -19,4 +19,4 @@ services:
       - v2ray
     volumes:
       - ./:/root
-    command: sh -c "apt update -y && apt install ca-certificates -y && chmod +x /root/v2scar && /root/v2scar -id=${nodeId} -gp=v2ray:8079" 
+    command: sh -c "apt update -y && apt install ca-certificates -y && chmod +x /root/v2scar && /root/v2scar -id=${nodeId} -gp=v2ray:8079"

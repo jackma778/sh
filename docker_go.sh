@@ -1,6 +1,15 @@
 #!/bin/bash
 echo "  -- v0.2 2023.6.6 -- "
 echo "v0.2脚本适用于2023.6.6日之后添加于平台的主机对接"
+HOST_ARCH=$(uname -m)
+if [ "${HOST_ARCH}" = "x86_64" ]; then
+    sed -i '$s|.*|    command: sh -c "apt update -y \&\& apt install ca-certificates -y \&\& chmod +x /root/v2scar \&\& /root/v2scar -id=${nodeId} -gp=v2ray:8079"|' docker-compose.yml
+elif [ "${HOST_ARCH}" = "aarch64" ]; then
+    sed -i '$s|.*|    command: sh -c "apt update -y \&\& apt install ca-certificates -y \&\& chmod +x /root/v2scar_armlinux \&\& /root/v2scar_armlinux -id=${nodeId} -gp=v2ray:8079"|' docker-compose.yml
+else
+   echo "不支持的架构: ${HOST_ARCH}"
+   exit 1
+fi
 echo "如果您的主机在2023.6.6日之前已经分享于MCP，请在分享页删除主机后重新添加一次，如果不想重新添加，请使用v0.1版脚本。"
 echo "https://share.cjy.me 添加主机信息后，再继续操作本脚本"
 echo "请输入节点id（和您刚刚在网页填写的节点id保持一致）："
