@@ -297,10 +297,10 @@ installV2Ray(){
         
         if [[ $(uname -m) == "arm"* ]]; then
             wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
-            mv v2scar_armlinux v2scar
+            mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
         elif [[ $(uname -m) == "aarch64" ]]; then
             wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
-            mv v2scar_armlinux v2scar
+            mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
         else
             wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
         fi
