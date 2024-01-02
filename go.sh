@@ -24,7 +24,14 @@ ERROR_IF_UPTODATE=''
 
 CUR_VER=""
 NEW_VER="v4.45.2"
-DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-64.zip"
+ARCH=$(uname -m)
+if [[ $ARCH == "armv7"* ]]; then
+    DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-arm32-v7a.zip"
+elif [[ $ARCH == "aarch64" ]]; then
+    DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-arm64-v8a.zip"
+elif [[ $ARCH == "x86_64" ]]; then
+    DOWNLOAD_LINK="https://github.com/v2fly/v2ray-core/releases/download/${NEW_VER}/v2ray-linux-64.zip"
+fi
 VDIS=''
 ZIPFILE="/tmp/v2ray/v2ray.zip"
 V2RAY_RUNNING=0
@@ -287,7 +294,17 @@ installV2Ray(){
         rm -rf /tmp/v2ray
         mkdir -p /tmp/v2ray
         colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
-        wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
+        
+        if [[ $(uname -m) == "arm"* ]]; then
+            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
+            mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
+        elif [[ $(uname -m) == "aarch64" ]]; then
+            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
+            mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
+        else
+            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
+        fi
+        
         if [ $? != 0 ]; then
             colorEcho ${RED} "Failed to download V2Ray! Please check your network or try again."
             return 3
