@@ -296,13 +296,13 @@ installV2Ray(){
         colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
         
         if [[ $(uname -m) == "arm"* ]]; then
-            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
+            wget --no-check-certificate -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
             mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
         elif [[ $(uname -m) == "aarch64" ]]; then
-            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
+            wget --no-check-certificate -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar_armlinux"
             mv /tmp/v2ray/v2scar_armlinux /tmp/v2ray/v2scar
         else
-            wget -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
+            wget --no-check-certificate -P /tmp/v2ray "https://github.com/jackma778/sh/releases/download/v0.1/v2scar"
         fi
         
         if [ $? != 0 ]; then
@@ -370,6 +370,17 @@ remove(){
 	fi
 }
 
+update_geo(){
+	DAT_PATH="/usr/bin/v2ray"
+	DOWNLOAD_LINK_GEOIP="https://github.com/v2fly/geoip/releases/latest/download/geoip.dat"
+	DOWNLOAD_LINK_GEOSITE="https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
+	wget --no-check-certificate -O "${DAT_PATH}/geoip.dat" "${DOWNLOAD_LINK_GEOIP}"
+	wget --no-check-certificate -O "${DAT_PATH}/geosite.dat" "${DOWNLOAD_LINK_GEOSITE}"
+	chmod 644 "${DAT_PATH}"/*.dat
+}
+
+
+
 echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- v0.2 2023.6.6 -- 
 v0.2脚本适用于2023.6.6日之后添加于平台的主机对接。
@@ -378,9 +389,10 @@ v0.2脚本适用于2023.6.6日之后添加于平台的主机对接。
   
 ————————————
  ${Green_font_prefix}0.${Font_color_suffix} 安装&对接
+ ${Green_font_prefix}1.${Font_color_suffix} 更新geo文件
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 启动/重启
- ${Green_font_prefix}2.${Font_color_suffix} 停止
+ ${Green_font_prefix}2.${Font_color_suffix} 启动/重启
+ ${Green_font_prefix}3.${Font_color_suffix} 停止
 ————————————
  ${Green_font_prefix}4.${Font_color_suffix} 卸载
 ————————————
@@ -393,11 +405,17 @@ case "$num" in
 	installSoftware unzip
 	installSoftware ca-certificates
 	installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
+	update_geo
         ;;
         1)
+	stopV2ray
+ 	update_geo
 	restartV2ray
         ;;
         2)
+	restartV2ray
+        ;;
+        3)
 	stopV2ray
         ;;
         4)
