@@ -220,25 +220,7 @@ getPMT(){
     return 0
 }
 
-stopV2ray(){
-    colorEcho ${BLUE} "Shutting down V2Ray service."
-    ${SYSTEMCTL_CMD} stop v2ray && ${SYSTEMCTL_CMD} stop v2scar
-    if [[ $? -ne 0 ]]; then
-        colorEcho ${YELLOW} "Failed to shutdown V2Ray service."
-        return 2
-    fi
-    return 0
-}
 
-restartV2ray(){
-    colorEcho ${BLUE} "Starting up V2Ray service."
-	${SYSTEMCTL_CMD} restart v2ray && ${SYSTEMCTL_CMD} restart v2scar
-    if [[ $? -ne 0 ]]; then
-        colorEcho ${YELLOW} "Failed to start V2Ray service."
-        return 2
-    fi
-    return 0
-}
 
 installV2Ray(){
     api=https://api.cjy.me
@@ -340,8 +322,6 @@ EOF
             systemctl daemon-reload
             systemctl enable v2ray.service
             systemctl enable v2scar.service
-            systemctl start v2ray.service
-            systemctl start v2scar.service
             colorEcho ${GREEN} "Install successfully."
         else
             colorEcho ${RED} "Failed to remove V2Ray, Try use debian10 64"
@@ -352,7 +332,25 @@ EOF
     fi
 }
 
+stopV2ray(){
+    colorEcho ${BLUE} "Shutting down V2Ray service."
+    ${SYSTEMCTL_CMD} stop v2ray && ${SYSTEMCTL_CMD} stop v2scar
+    if [[ $? -ne 0 ]]; then
+        colorEcho ${YELLOW} "Failed to shutdown V2Ray service."
+        return 2
+    fi
+    return 0
+}
 
+restartV2ray(){
+    colorEcho ${BLUE} "Starting up V2Ray service."
+	${SYSTEMCTL_CMD} restart v2ray && ${SYSTEMCTL_CMD} restart v2scar
+    if [[ $? -ne 0 ]]; then
+        colorEcho ${YELLOW} "Failed to start V2Ray service."
+        return 2
+    fi
+    return 0
+}
 
 remove(){
         systemctl stop v2ray.service
@@ -406,6 +404,7 @@ case "$num" in
 	installSoftware ca-certificates
 	installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
 	update_geo
+ 	restartV2ray
         ;;
         1)
 	stopV2ray
