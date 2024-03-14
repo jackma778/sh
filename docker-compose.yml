@@ -8,6 +8,9 @@ services:
     ports:
       - "${runPort}:${runPort}"
     command: "v2ray -config=${api}/api/vmess_server_config/${nodeId}/?token=${token}"
+    volumes:
+      - ./:/usr/local/share/v2ray
+
 
   v2scar:
     container_name: mcpv2scar
