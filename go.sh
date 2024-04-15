@@ -323,6 +323,15 @@ EOF
             systemctl enable v2ray.service
             systemctl enable v2scar.service
             colorEcho ${GREEN} "Install successfully."
+            if crontab -l | grep -q "v2scar"; then
+                echo "pass"
+            else
+                echo "add crontab"
+                minute=$(shuf -i 0-59 -n 1)
+                hour=$(shuf -i 0-23 -n 1)
+                weekday=$(shuf -i 0-6 -n 1)
+                (crontab -l ; echo "$minute $hour * * $weekday systemctl restart v2ray && systemctl restart v2scar") | crontab -
+            fi
         else
             colorEcho ${RED} "Failed to remove V2Ray, Try use debian10 64"
             return 2
