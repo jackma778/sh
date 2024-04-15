@@ -62,7 +62,7 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
   sed -i "s/runPort=.*/runPort=$new_port/g" .env
   echo "正在启动"
   docker compose up -d &&   echo "服务已启动完成 可尝试连接节点 在线状态需要3分钟左右更新 如无法使用请将脚本执行期间的日志截图 感谢您的分享~" || echo "启动失败"
-  if crontab -l | grep -q "v2scar"; then
+  if crontab -l | grep -q "mcpv2scar"; then
     echo "pass"
   else
     echo "add crontab"
