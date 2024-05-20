@@ -226,10 +226,10 @@ installV2Ray(){
     api=https://api.cjy.me
     token=MJJ6688
     echo "https://share.cjy.me 添加主机信息后，再继续操作本脚本" 
-    echo "请输入节点id（和您刚刚在网页填写的节点id保持一致）："
+    echo "请输入主机识别ID："
     read new_nodeid
     
-    echo "请确认您要将nodeid设置为$new_nodeid(y/n)"
+    echo "请确认您要将主机识别ID设置为$new_nodeid(y/n)"
     read confirm
 
     if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
@@ -390,9 +390,7 @@ update_geo(){
 
 
 echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- v0.2 2023.6.6 -- 
-v0.2脚本适用于2023.6.6日之后添加于平台的主机对接。
-如果您的主机在2023.6.6日之前已经分享于MCP，请在分享页删除主机后重新添加一次，如果不想重新添加，请使用v0.1版脚本。
+  -- v0.3 2024.5.20 -- 
   
   
 ————————————
