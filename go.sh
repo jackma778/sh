@@ -338,6 +338,7 @@ EOF
         fi
     else
         colorEcho ${RED} "Cancel Install."
+	exit 0
     fi
 }
 
