@@ -379,6 +379,18 @@ restartV2ray(){
     return 0
 }
 
+showLog(){
+    echo "======================================================================================================"
+    echo "v2scar日志如下"
+    journalctl -u v2scar.service -n 20 --no-pager
+    echo "======================================================================================================"
+    echo "v2ray日志如下"
+    journalctl -u v2ray.service -n 25 --no-pager
+    echo "======================================================================================================"
+}
+
+
+
 remove(){
         systemctl stop v2ray.service
         systemctl stop v2scar.service
@@ -416,8 +428,9 @@ echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Fo
 ————————————
  ${Green_font_prefix}2.${Font_color_suffix} 启动/重启
  ${Green_font_prefix}3.${Font_color_suffix} 停止
+ ${Green_font_prefix}4.${Font_color_suffix} 查看日志
 ————————————
- ${Green_font_prefix}4.${Font_color_suffix} 卸载
+ ${Green_font_prefix}88.${Font_color_suffix} 卸载
 ————————————
 " && echo
 read -e -p " 请输入数字:" num
@@ -443,6 +456,9 @@ case "$num" in
 	stopV2ray
         ;;
         4)
+	showLog
+        ;;
+        88)
 	remove
 	    ;;
         *)
