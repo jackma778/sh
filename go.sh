@@ -306,14 +306,31 @@ installV2Ray(){
 
         # Install V2Ray.service and v2scar.service
         if [[ -n "${SYSTEMCTL_CMD}" ]]; then
-            unzip -oj "$1" "$2systemd/system/v2ray.service" -d '/etc/systemd/system' && sed -i "s@ExecStart=.*@ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token@" /etc/systemd/system/v2ray.service
+	    cat <<EOF > /etc/systemd/system/v2ray.service
+[Unit]
+Description=V2Ray Service
+Documentation=https://www.v2fly.org/
+After=network.target nss-lookup.target
 
+[Service]
+User=root
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/bin/v2ray/v2ray -config $api/api/vmess_server_config/$nodeId/?token=$token
+Restart=always
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
+EOF
             cat <<EOF > /etc/systemd/system/v2scar.service
 [Unit]
 Description=v2scar
 [Service]
 ExecStart=/usr/bin/v2ray/v2scar --nodeid=$nodeId
 Restart=always
+RestartSec=60s
 User=root
 [Install]
 WantedBy=multi-user.target
