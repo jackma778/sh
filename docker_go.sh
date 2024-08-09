@@ -56,6 +56,11 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
         echo "ulimit -SHn 1000000" >> /etc/profile
         source /etc/profile
     fi
+  DOWNLOAD_LINK_GEOIP="https://github.com/v2fly/geoip/releases/latest/download/geoip.dat"
+  DOWNLOAD_LINK_GEOSITE="https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
+  wget --no-check-certificate -O "geoip.dat" "${DOWNLOAD_LINK_GEOIP}"
+  wget --no-check-certificate -O "geosite.dat" "${DOWNLOAD_LINK_GEOSITE}"
+  chmod 644 *.dat
   sed -i "s/nodeId=.*/nodeId=$new_nodeid/g" .env
   sed -i "s/runPort=.*/runPort=$new_port/g" .env
   echo "正在启动"
@@ -74,6 +79,9 @@ if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
   echo "启动命令 cd /root/sh && docker compose up -d"
   echo "启动状态下重启或改动了防火墙配置后需执行 systemctl restart docker"
   echo "卸载命令 cd /root/sh && docker compose down"
+  echo "如果对接失败，请将下面两个日志发在群内求助："
+  echo "docker logs --tail=100 mcpv2scar"
+  echo "docker logs --tail=100 mcpv2"
 else
   echo "取消"
 fi
