@@ -393,7 +393,7 @@ EOF
         systemctl enable v2ray.service
         systemctl enable v2scar.service
         colorEcho ${GREEN} "Install successfully."
-        if crontab -l | grep -q "v2scar"; then
+        if crontab -l |grep -v docker| grep -q "v2scar"; then
             echo "pass"
         else
             echo "add crontab"
