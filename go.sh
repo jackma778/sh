@@ -465,8 +465,8 @@ update_geo(){
 
 
 
-echo && echo -e " 分享小鸡@share_life_mjj ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- v0.3 2024.5.20 -- 
+echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  -- v0.4 2024.8.15 -- 
   
   
 ————————————
