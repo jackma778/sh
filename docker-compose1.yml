@@ -12,7 +12,7 @@ services:
     volumes:
       - ./:/usr/local/share/v2ray
     healthcheck:
-      test: ["CMD", "sh", "-c", "pgrep get_server_config && pgrep v2scar || exit 1"]
+      test: ["CMD", "sh", "-c", "pgrep -f get_server_config && pgrep -f v2scar_alpine || echo 1"]
       interval: 30s
       timeout: 3s
       retries: 1
