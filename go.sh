@@ -458,8 +458,17 @@ stopV2ray(){
 restartV2ray(){
     colorEcho ${BLUE} "Stop V2Ray service."
     systemctl stop v2ray.service && systemctl stop v2scar.service && colorEcho ${GREEN} "OK" || colorEcho ${RED} "FAILED"
+    sleep 1
     colorEcho ${BLUE} "Starting up V2Ray service."
-    sleep 3 ; systemctl start v2ray.service && systemctl start v2scar.service && colorEcho ${GREEN} "OK" || colorEcho ${RED} "FAILED"
+    systemctl start v2ray.service && systemctl start v2scar.service
+    sleep 3
+    ps -ef | grep v2ray| grep get_server_config
+    if [ $? -eq 0 ];then
+        colorEcho ${GREEN} "OK" 
+    else
+        showLog
+        colorEcho ${RED} "FAILED"
+    fi
 }
 
 showLog(){
