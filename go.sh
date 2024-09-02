@@ -184,7 +184,7 @@ installSoftware(){
         exit 1
     fi
     if [ -f /etc/systemd/system/v2scar.service ]; then
-        colorEcho ${RED} "已安装过,如需重装请先执行卸载操作，更换端口请重启，无需重装。"
+        colorEcho ${RED} "检测到mcp已安装，如需重装请先执行卸载。"
         exit 0
     fi
     COMPONENT=$1
@@ -227,6 +227,42 @@ getPMT(){
         return 1
     fi
     return 0
+}
+refreshPort(){
+    if [ ! -f /etc/systemd/system/v2scar.service ]; then
+        colorEcho ${RED} "未检测到mcp服务端，请先安装"
+        exit 0
+    fi
+    new_nodeid=`grep -oP '(?<=--nodeid=)\d+' /etc/systemd/system/v2scar.service`
+    new_token=$(grep "^$new_nodeid=" /root/.mcptoken | cut -d '=' -f 2)
+    if [ -z "$new_token" ]; then
+        colorEcho ${RED} "您的mcp服务端过旧,无法使用脚本更换端口，请先执行卸载后重新安装"
+        exit 0
+    fi
+    while true; do
+            echo "正在验证$nodeid的主机token：$new_token"
+            verify=$(curl -s "$API/api/verify_server_token?token=$new_token&id=$new_nodeid")
+            if [ "$verify" == "1" ]; then
+                    sed -i "s|^$new_nodeid=.*|$new_nodeid=$new_token|" /root/.mcptoken
+                    echo "token验证通过：$new_nodeid=$new_token"
+                    break
+            else
+                    colorEcho ${RED} "验证失败，请输入账户全局token或 输入识别ID为：$new_nodeid 的主机token ，您可以在"我的主机"页面查询到："
+                    read new_token
+            fi
+    done
+    read -p "请输入需要更换的新端口 (直接回车随机生成): " new_port
+    if [ -z "$new_port" ]; then
+            new_port=$((RANDOM % 49001 + 1000))
+    fi
+    refresh_port=$(curl -s "$API/api/refresh_server_port?token=$new_token&id=$new_nodeid&port=$new_port")
+            if [[ $refresh_port =~ ^newPort= ]]; then
+                    new_port=$(echo $refresh_port | cut -d '=' -f 2)
+                    colorEcho ${GREEN} "端口更换成功，新端口为：$new_port"
+            else
+                    colorEcho ${RED} "端口更换失败，失败原因为：$refresh_port"
+                    exit 1
+            fi
 }
 
 installV2Ray(){
@@ -465,8 +501,8 @@ update_geo(){
 
 
 
-echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- v0.4 2024.8.15 -- 
+echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v0.5]${Font_color_suffix}
+  -- v0.5 2024.9.3 -- 
   
   
 ————————————
@@ -476,6 +512,8 @@ echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v${sh_ver}]${
  ${Green_font_prefix}2.${Font_color_suffix} 启动/重启
  ${Green_font_prefix}3.${Font_color_suffix} 停止
  ${Green_font_prefix}4.${Font_color_suffix} 查看日志
+————————————
+ ${Green_font_prefix}9.${Font_color_suffix} 更换端口
 ————————————
  ${Green_font_prefix}88.${Font_color_suffix} 卸载
 ————————————
@@ -504,6 +542,10 @@ case "$num" in
         ;;
         4)
         showLog
+        ;;
+        9)
+        refreshPort
+        restartV2ray
         ;;
         88)
         remove
