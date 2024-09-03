@@ -21,8 +21,12 @@ fi
 
 
 
-echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- v0.4 2024.8.15 --"
+installV2Ray(){
+docker ps | grep mcpv2
+if [ $? -eq 0 ];then
+        colorEcho ${RED} "检测到mcpv2已安装，请勿重复安装"
+        exit 1
+fi
 colorEcho ${GREEN} "请先在网页添加主机信息后，再继续操作本脚本" 
 while true; do
         colorEcho ${BLUE} "请输入主机识别ID："
@@ -77,16 +81,7 @@ token=$new_token
 echo "token验证通过：$new_nodeid=$new_token"
 
 
-while true; do
-        colorEcho ${BLUE} "请输入服务端端口（与网页填写的服务源端端口保持一致）："
-		read new_port
-
-        if [[ "$new_port" =~ ^[0-9]+$ ]]; then
-                break
-        else
-                colorEcho ${RED} "端口是一个数字，请确认"
-        fi
-done
+new_port=$(curl -s "$API/api/refresh_server_port?token=$new_token&id=$new_nodeid&show=1")
 
 sed -i "s/token=.*/token=$new_token/g" .env
 sed -i "s/nodeId=.*/nodeId=$new_nodeid/g" .env
@@ -138,21 +133,156 @@ fi
     minute=$(shuf -i 0-59 -n 1)
     hour=$(shuf -i 0-23 -n 1)
     weekday=$(shuf -i 0-6 -n 1)
-    (crontab -l ; echo "$minute $hour * * $weekday docker restart mcpv2 && docker restart mcpv2scar") | crontab -
+    (crontab -l ; echo "$minute $hour * * $weekday docker restart mcpv2") | crontab -
   fi
   docker ps -a
-  echo "停止命令 cd /root/sh && docker compose stop"
-  echo "启动命令 cd /root/sh && docker compose up -d"
-  echo "启动状态下重启或改动了防火墙配置后需执行 systemctl restart docker"
-  echo "卸载命令 cd /root/sh && docker compose down"
+}
+update_geo(){
+        DAT_PATH="/root/sh"
+        DOWNLOAD_LINK_GEOIP="https://github.com/v2fly/geoip/releases/latest/download/geoip.dat"
+        DOWNLOAD_LINK_GEOSITE="https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
+        wget --no-check-certificate -O "${DAT_PATH}/geoip.dat" "${DOWNLOAD_LINK_GEOIP}"
+        wget --no-check-certificate -O "${DAT_PATH}/geosite.dat" "${DOWNLOAD_LINK_GEOSITE}"
+        chmod 644 "${DAT_PATH}"/*.dat
+}
+refreshPort(){
+    docker ps -a | grep mcpv2
+    if [ $? -ne 0 ];then
+        colorEcho ${RED} "未检测到mcp服务端，请先安装"
+        exit 1
+    fi
+    new_nodeid=`grep ^nodeId= .env | cut -d '=' -f 2`
+    new_token=`grep ^token= .env | cut -d '=' -f 2`
+    if [ -z "$new_token" ]; then
+        colorEcho ${RED} "您的mcp服务端过旧,无法使用脚本更换端口，请先执行卸载后重新安装"
+        exit 0
+    fi
+    while true; do
+            echo "正在验证$nodeid的主机token：$new_token"
+            verify=$(curl -s "$API/api/verify_server_token?token=$new_token&id=$new_nodeid")
+            if [ "$verify" == "1" ]; then
+                    sed -i "s|^$new_nodeid=.*|$new_nodeid=$new_token|" /root/.mcptoken
+                    echo "token验证通过：$new_nodeid=$new_token"
+                    break
+            else
+                    colorEcho ${RED} "验证失败，请输入账户全局token或 输入识别ID为：$new_nodeid 的主机token ，您可以在"我的主机"页面查询到："
+                    read new_token
+            fi
+    done
+    read -p "请输入需要更换的新端口 (直接回车随机生成): " new_port
+    if [ -z "$new_port" ]; then
+            new_port=$((RANDOM % 49001 + 1000))
+    fi
+    refresh_port=$(curl -s "$API/api/refresh_server_port?token=$new_token&id=$new_nodeid&port=$new_port&docker=1")
+            if [[ $refresh_port =~ ^newPort= ]]; then
+                    new_port=$(echo $refresh_port | cut -d '=' -f 2)
+                    env_port=$(echo $new_port | sed 's/(.*//')
+                    sed -i "s|^runPort=.*|runPort=$env_port|" .env
+                    docker compose down && docker compose up -d
+                    colorEcho ${GREEN} "端口更换成功，新端口为：$new_port"
+            else
+                    colorEcho ${RED} "端口更换失败，失败原因为：$refresh_port"
+                    exit 1
+            fi
+
+}
+updateCompose(){
+    docker ps -a | grep mcpv2
+    if [ $? -ne 0 ];then
+        colorEcho ${RED} "未检测到mcp服务端，请先安装"
+        exit 1
+    fi
+    docker compose down && docker compose up -d
+}
+restartV2ray(){
   if [ "${HOST_ARCH}" = "x86_64" ]; then
-    echo "如果对接失败，请将下面日志发在群内求助："
-    echo "docker logs --tail=100 mcpv2"
+        docker restart mcpv2
   elif [ "${HOST_ARCH}" = "aarch64" ]; then
-    echo "如果对接失败，请将下面日志发在群内求助："
-    echo "docker logs --tail=100 mcpv2"
-    echo "docker logs --tail=100 mcpv2scar"
+        docker restart mcpv2 mcpv2scar
   else
       echo "不支持的架构: ${HOST_ARCH}"
       exit 1
   fi
+}
+remove(){
+        docker compose down
+}
+stopV2ray(){
+  if [ "${HOST_ARCH}" = "x86_64" ]; then
+        docker stop mcpv2
+  elif [ "${HOST_ARCH}" = "aarch64" ]; then
+        docker stop mcpv2 mcpv2scar
+  else
+      echo "不支持的架构: ${HOST_ARCH}"
+      exit 1
+  fi
+}
+showLog(){
+  sleep 3
+  if [ "${HOST_ARCH}" = "x86_64" ]; then
+    echo "======================================================================================================"
+    echo "mcpv2日志如下"
+    docker logs --tail=100 mcpv2
+  elif [ "${HOST_ARCH}" = "aarch64" ]; then
+    echo "======================================================================================================"
+    echo "mcpv2日志如下"
+    docker logs --tail=100 mcpv2scar
+    echo "======================================================================================================"
+    docker logs --tail=100 mcpv2
+  else
+      echo "不支持的架构: ${HOST_ARCH}"
+      exit 1
+  fi
+}
+echo && echo -e " 分享小鸡@mjjcloudplatform ${Red_font_prefix}[v0.5]${Font_color_suffix}
+  -- v0.5 2024.9.3 -- 
+  
+  
+————————————
+ ${Green_font_prefix}0.${Font_color_suffix} Docker版安装&对接
+ ${Green_font_prefix}1.${Font_color_suffix} 更新geo文件
+————————————
+ ${Green_font_prefix}2.${Font_color_suffix} 重启mcpv2
+ ${Green_font_prefix}3.${Font_color_suffix} 停止mcpv2
+ ${Green_font_prefix}4.${Font_color_suffix} 查看日志
+ ${Green_font_prefix}5.${Font_color_suffix} 重启docker
+————————————
+ ${Green_font_prefix}9.${Font_color_suffix} 更换端口
+————————————
+ ${Green_font_prefix}88.${Font_color_suffix} 卸载
+————————————
+" && echo
+read -e -p " 请输入数字:" num
+case "$num" in
+        0)
+        update_geo
+        installV2Ray
+        showLog
+        ;;
+        1)
+        update_geo
+        updateCompose
+        showLog
+        ;;
+        2)
+        restartV2ray
+        showLog
+        ;;
+        3)
+        stopV2ray
+        ;;
+        4)
+        showLog
+        ;;
+        9)
+        refreshPort
+        restartV2ray
+        showLog
+        ;;
+        88)
+        remove
+        ;;
+        *)
+        echo "请输入正确数字 [0-4]"
+        ;;
+esac
