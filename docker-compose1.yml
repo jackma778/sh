@@ -9,6 +9,11 @@ services:
     restart: always
     ports:
       - "${runPort}:${runPort}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5k"
+        max-file: "2"
     volumes:
       - ./:/usr/local/share/v2ray
     healthcheck:
