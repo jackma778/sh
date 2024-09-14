@@ -460,6 +460,7 @@ restartV2ray(){
     systemctl stop v2ray.service && systemctl stop v2scar.service && colorEcho ${GREEN} "OK" || colorEcho ${RED} "FAILED"
     sleep 1
     colorEcho ${BLUE} "Starting up V2Ray service."
+    ntpdate time.windows.com && hwclock -w
     systemctl start v2ray.service && systemctl start v2scar.service
     sleep 3
     ps -ef | grep v2ray| grep get_server_config
@@ -534,6 +535,7 @@ case "$num" in
         installSoftware wget
         installSoftware unzip
         installSoftware ca-certificates
+        installSoftware ntpdate
         installV2Ray "${ZIPFILE}" "${ZIPROOT}" || return $?
         update_geo
         restartV2ray
