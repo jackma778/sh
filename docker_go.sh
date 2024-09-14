@@ -199,6 +199,7 @@ updateCompose(){
     docker compose down && docker compose up -d
 }
 restartV2ray(){
+  ntpdate time.windows.com && hwclock -w
   if [ "${HOST_ARCH}" = "x86_64" ]; then
         docker restart mcpv2
   elif [ "${HOST_ARCH}" = "aarch64" ]; then
