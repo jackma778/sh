@@ -7,8 +7,7 @@ services:
       - V2RAY_VMESS_AEAD_FORCED=false
     container_name: mcpv2
     restart: always
-    ports:
-      - "${runPort}:${runPort}"
+    network_mode: host
     logging:
       driver: "json-file"
       options:
