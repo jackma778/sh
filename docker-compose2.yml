@@ -7,7 +7,7 @@ services:
     restart: always
     ports:
       - "${runPort}:${runPort}"
-    command: "v2ray -config=${api}/api/get_server_config?id=${nodeId}&token=${token}"
+    command: "v2ray -config=${api}/api/vmess_server_config/${nodeId}/?token=MJJ6688"
     volumes:
       - ./:/usr/local/share/v2ray
 
