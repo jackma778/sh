@@ -21,4 +21,4 @@ services:
       timeout: 3s
       retries: 1
       start_period: 15s
-    command: sh -c "chmod +x /usr/local/share/v2ray/v2scar_alpine && /usr/local/share/v2ray/v2scar_alpine -id=${nodeId} -gp=localhost:8079 & v2ray -config='${api}/api/get_server_config?id=${nodeId}&token=${token}'"
+    command: sh -c "chmod +x /usr/local/share/v2ray/v2scar_alpine && /usr/local/share/v2ray/v2scar_alpine -id=${nodeId} -gp=127.0.0.1:8079 & v2ray -config='${api}/api/get_server_config?id=${nodeId}&token=${token}'"
