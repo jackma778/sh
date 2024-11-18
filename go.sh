@@ -333,6 +333,9 @@ installV2Ray(){
         net.ipv4.ip_forward = 1
         net.ipv4.ip_local_port_range = 10000 65000
         net.ipv4.route.gc_timeout = 100
+        net.ipv4.tcp_rmem = 4096 87380 15728640
+        net.ipv4.tcp_wmem = 4096 65536 15728640
+        net.ipv4.tcp_mtu_probing = 1
         net.ipv4.tcp_retries2 = 8
         net.ipv4.tcp_slow_start_after_idle = 0
         net.ipv4.tcp_syncookies = 1
